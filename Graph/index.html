@@ -239,15 +239,18 @@ class Graph{
         }
 
         getCountRatio(){
-            var sum = 0
-            for(let p of this.particle_arr){
-                sum += p.count
+            var sum_arr = null
+            for(let i=0;i<this.particle_arr.length;i++){
+                let p = this.particle_arr[i]
+                if(i==0){
+                    sum_arr = p.countGraphPoint
+                }else{
+                    for(let j=0;j<sum_arr.length;j++){
+                        sum_arr[j] += p.countGraphPoint[j]
+                    }
+                }
             }
-            var res = {}
-            for(let p of this.particle_arr){
-                res[p.index] = p.count/sum
-            }
-            return res
+            return sum_arr
         }
     }
 
@@ -321,6 +324,7 @@ class Graph{
        pointGraph.drawGraph()
        p_grp.draw()  
        p_grp.moveOnGraph(1)
+       // p_grp.logCount()
     },10)
 
     // DrawTool.fillCycle(30,40,20)

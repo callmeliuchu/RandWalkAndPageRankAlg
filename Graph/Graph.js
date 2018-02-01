@@ -1,10 +1,6 @@
-function print(obj){
-	console.log(obj)
-}
-var locationMapping = {0:{x:20,y:20},1:{x:760,y:20},2:{x:20,y:560},3:{x:760,y:560}}
-
 class Graph{
-	constructor(n){
+	constructor(graphData,n){
+		this.graphData = graphData
 		this.edges = new Array(n)
 		this.visited = new Array(n)
 		this.record = new Array(n)
@@ -14,6 +10,14 @@ class Graph{
 			this.edges[i] = new Array()
 			this.visited [i] = 0
 			this.record[i] = 0
+		}
+		this.init()
+	}
+	init(){
+		for(let arr of this.graphData){
+			let s = arr[0]
+			let e = arr[1]
+			this.addEdge(s,e)
 		}
 	}
 	addEdge(u,v){
@@ -25,7 +29,6 @@ class Graph{
              return Math.floor(Math.random()*n)
           }
 	dfs(v){
-	   console.log(v)
 	   this.visited[v] = 1
 	   for(let w of this.edges[v]){
 	   	if(this.visited[w]==0){	
@@ -59,13 +62,3 @@ class Graph{
 	       }
 	}
 }
-g = [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3],[3,0]]
-var graph = new Graph(4)
-for(let arr of g){
-	s = arr[0]
-	e = arr[1]
-	graph.addEdge(s,e)
-}
-
-
-// console.log(locationMapping[0])

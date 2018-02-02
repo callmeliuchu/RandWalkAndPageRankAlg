@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+<title></title>
 <script type="text/javascript">
 class Graph{
     constructor(graphData,n){
@@ -97,7 +97,7 @@ class Graph{
     var DrawTool = {}
     DrawTool.canvas = document.getElementById("canvas");
     DrawTool.ctx = DrawTool.canvas.getContext("2d");
-    DrawTool.iniCanvas = function(width=800,height=600){
+    DrawTool.iniCanvas = function(width=1800,height=1600){
         this.width = width;
         this.height = height;
         this.canvas.width = width;
@@ -133,14 +133,35 @@ class Graph{
         DrawTool.fillCycle(x,y,radius);
         DrawTool.ctx.fill();
     }
-
+    const paraYBase = (x,lineLen)=>{
+        return 0.3/lineLen*x*(x-lineLen)*(-1)
+    }
+    const baseRotate = (x,y,alpha)=>{
+        let new_x = x*Math.cos(alpha) - y*Math.sin(alpha)
+        let new_y = x*Math.sin(alpha) + y*Math.cos(alpha)
+        return {x:new_x,y:new_y}
+    }
+    DrawTool.drawParaCurv = function(p_start,p_end){
+        const len_x = Math.abs(p_start.x - p_end.x)
+        const x0 = p_start.x
+        const x1 = p_end.x
+        const y0 = p_start.y
+        // const y1 = p_end.y
+        this.beginPath()
+        const n = 100
+        this.ctx.moveTo(p_start.x,p_start.y);
+        let alpha = Math.atan((p_start.y-p_end.y)/(p_start.x - p_end.x))
+        for(let i=1;i<=n;i++){
+            let x = len_x/n*i+x0
+            let y = paraYBase(x-x0,len_x)+y0
+            let new_loc = baseRotate(x-x0,y-y0,alpha)
+            this.ctx.lineTo(new_loc.x+x0,new_loc.y+y0)
+        }
+        this.stroke()
+    }
     DrawTool.drawCycleByPoint = function(p,radius,color='#0000ff'){
         this.drawCycle(p.x,p.y,radius,color)
     }
-    // DrawTool.drawCycle = function(p,r){
-    //        this.ctx.fillStyle = "#ffffff";
-    // 	this.fillCycle(p.x,p.y,r);
-    // }
     DrawTool.fillText = function(x,y,text){
     	this.ctx.fillText(x,y,text)
     }
@@ -158,6 +179,8 @@ class Graph{
                      this.color = color
                      this.countGraphPoint = []
                      this.intiCountGraphPoint()
+                     this.isLineMove = true
+                     this.curve_v = 30
     	}
            intiCountGraphPoint(n){
                     for(let i=0;i<n;i++){
@@ -197,16 +220,33 @@ class Graph{
     	cal_dis_to_end(){
     		return Math.sqrt((this.x-this.end.x)*(this.x-this.end.x) + (this.y-this.end.y)*(this.y-this.end.y))
     	}
+           cal_dis(){
+                     return Math.sqrt((this.start.x-this.end.x)*(this.start.x-this.end.x) + (this.start.y-this.end.y)*(this.start.y-this.end.y))
+           }
+           cal_dis_to_start(){
+                    return Math.sqrt((this.x-this.start.x)*(this.x-this.start.x) + (this.y-this.start.y)*(this.y-this.start.y))
+           }
     	move(dt){
     	          this.x += this.vx*dt
     	          this.y += this.vy*dt
     	}
+          paraY(x,x0,y0,x1){
+                   return 0.3/(x0-x1)*(x-x0)*(x-x1)+y0
+           }
+          paraYBase(x,lineLen){
+                  return 0.3/lineLen*x*(x-lineLen)*(-1)
+          }
+          baseRotate(x,y,alpha){
+                let new_x = x*Math.cos(alpha) - y*Math.sin(alpha)
+                let new_y = x*Math.sin(alpha) + y*Math.cos(alpha)
+                return {x:new_x,y:new_y}
+           }
            setGraph(graph){
-            this.graph = graph
+                    this.graph = graph
            }
     	moveOnGraph(dt){
     		if(this.cal_dis_to_end()>this.r*10){
-    			this.move(dt)
+                                   this.move(dt)
     		}else{
     		           this.setStartIndex(this.endIndex)
     		           let nextIndex = this.graph.searchNextIndex(this.startIndex)
@@ -214,7 +254,25 @@ class Graph{
     		}
     	}
     	draw(){
-    		DrawTool.drawCycle(this.x,this.y,this.r,this.color)
+                     if(this.isLineMove){
+                        DrawTool.drawCycle(this.x,this.y,this.r,this.color)
+                    }else{
+                      if(this.cal_dis_to_end()>this.r*10){
+                        DrawTool.drawCycle(this.x,this.y,this.r,this.color)
+                        let baseX =  this.cal_dis_to_start()
+                        let lineLen = this.cal_dis()
+                        let baseY = this.paraYBase(baseX,lineLen)
+                        let alpha = Math.atan((this.start.y-this.end.y)/(this.start.x - this.end.x))
+                        let new_loc = this.baseRotate(baseX,baseY,alpha)
+                        let x = new_loc.x + this.start.x
+                        let y = new_loc.y + this.start.y
+                        DrawTool.drawCycle(x,y,this.r,this.color)
+                        console.log(baseX,lineLen,baseY,alpha)
+                        }else{
+                             DrawTool.drawCycle(this.x,this.y,this.r,this.color)
+                        }
+                       
+                    }
     	}
     }
     class ParticleGrp{
@@ -286,10 +344,13 @@ class Graph{
         getGrpah(){
             return this.graph
         }
-
     }
 
-
+    DrawTool.iniCanvas()
+    // var  p0 = new Point(0,20,20)
+    // var  p1 = new Point(1,760,20)
+    // var  p3 = new Point(3,760,560)
+    const run = ()=>{
         var  p0 = new Point(0,20,20)
         var  p1 = new Point(1,760,20)
         var  p2 = new Point(2,20,560)
@@ -298,13 +359,24 @@ class Graph{
         var  p5 = new Point(5,200,300)
         var  p6 = new Point(6,400,400)
         var  p7 = new Point(7,600,300)
-        const p_arr = [p0,p1,p2,p3,p4,p5,p6,p7]
+        var  p8 = new Point(8,400,100)
+        var  p9 = new Point(9,100,300)
+        var p10 = new Point(10,400,500)
+        var p11 = new Point(11,700,300)
+        const p_arr = [p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]
         const p_graph = [[p0,p1],[p1,p2],[p2,p3],[p3,p0],[p3,p1],[p0,p2],[p5,p0],
                                    [p5,p4],[p5,p6],[p5,p2],
                                    [p6,p7],[p7,p4],[p7,p1],[p7,p3],[p6,p2],[p6,p3],[p4,p0],[p4,p1],
                                    [p7,p6],[p4,p7],[p1,p7],[p3,p7],
-                                   [p4,p5],[p2,p5]
+                                   [p4,p5],[p2,p5],
+                                   [p8,p0],[p8,p1],[p8,p9],[p8,p11],
+                                   [p9,p0],[p9,p8],[p9,p2],[p9,p10],
+                                   [p10,p9],[p10,p2],[p10,p11],[p10,p3],
+                                   [p11,p1],[p11,p10],[p11,p8],[p11,p3],
+                                   [p2,p9],[p3,p10]
                                  ]
+        // const p_arr = [p0,p1,p2,p3]
+        // const p_graph = [[p0,p3]]
         var pointGraph=  new PointGraph(p_arr,p_graph)
         var locationMapping = pointGraph.getLocationMapping()
         var graph = pointGraph.getGrpah()
@@ -317,17 +389,14 @@ class Graph{
            particle.comeToEndIndex(p_vec[1].index)
            p_grp.push(particle)
          }
-
-    DrawTool.iniCanvas()
     setInterval(()=>{
        DrawTool.clear()
        pointGraph.drawGraph()
        p_grp.draw()  
        p_grp.moveOnGraph(1)
-       // p_grp.logCount()
-    },10)
+    },100)
+}
+run()
 
-    // DrawTool.fillCycle(30,40,20)
-    // DrawTool.fillText('1',26,45,20)
 </script>
 </html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+<script type="text/javascript">
+    class Point{
+    	constructor(x,y){
+    		this.x = x
+    		this.y = y
+    	}
+    }
+    class Circle{
+    	constructor(x,y,radius){
+    		this.x = x
+    		this.y = y
+    		this.radius = radius
+    	}
+    }
+    class DrawTool{
+    	constructor(canvas,ctx){
+    		this.canvas = canvas
+    		this.ctx = ctx
+    	}
+    	init(width=1800,height=1600){
+    		this.width = width
+    		this.height = height
+    		this.canvas.width = width
+    		this.canvas.height = height
+    	}
+          drawLine(p1,p2,width=1,color="#000000"){
+                   this.beginPath()
+	         this.ctx.moveTo(p1.x,p1.y);
+	         this.ctx.lineTo(p2.x,p2.y);
+	         this.ctx.strokeStyle=color;
+	         this.ctx.lineWidth=width;
+	         this.stroke()
+         }
+         clear(){
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+         }
+         beginPath(){
+                   this.ctx.beginPath()
+         }
+         stroke(){
+                   this.ctx.stroke();
+         }
+         drawCycleByLocation(rx,ry,radius){
+	         this.beginPath()
+	         this.ctx.arc(rx, ry, radius, 0, Math.PI*2, true)
+	         this.stroke()
+          }
+         drawCycleByFillingColor(x,y,radius,color='#0000ff'){
+	        let colorObj = this.ctx.createRadialGradient(x-radius/1.8,y-radius/1.8,0,x,y,radius)
+	        colorObj.addColorStop(0,"#FFFFFF")
+	        colorObj.addColorStop(1,color)
+	        this.ctx.fillStyle = colorObj
+	        this.drawCycleByLocation(x,y,radius)
+	        this.ctx.fill()
+         }
+         drawParaCurv(p_start,p_end,paraYBase,baseRotate){
+	        const len_x = Math.abs(p_start.x - p_end.x)
+	        const x0 = p_start.x
+	        const x1 = p_end.x
+	        const y0 = p_start.y
+	        this.beginPath()
+	        const n = 100
+	        this.ctx.moveTo(p_start.x,p_start.y);
+	        let alpha = Math.atan((p_start.y-p_end.y)/(p_start.x - p_end.x))
+	        for(let i=1;i<=n;i++){
+	            let x = len_x/n*i+x0
+	            let y = paraYBase(x-x0,len_x)+y0
+	            let new_loc = baseRotate(x-x0,y-y0,alpha)
+	            this.ctx.lineTo(new_loc.x+x0,new_loc.y+y0)
+	        }
+	        this.stroke()
+          }
+          drawCycle(circle,color='#0000ff'){
+          	      this.drawCycleByFillingColor(circle.x,circle.y,circle.radius,color)
+          }
+          fillText(x,y,text){
+    	      this.ctx.fillText(x,y,text)
+         }
+     }
+     class Particle{
+     	constructor(x,y,radius,vx,vy,color,playground){
+     		this.x = x
+     		this.y  = y
+     		this.radius = radius
+     		this.vx = vx
+     		this.vy = vy
+     		this.color = color
+     		this.playground = playground
+     	}
+     	move(dt){
+     		this.bounceX()
+     		this.bounceY()
+     		this.x += this.vx*dt
+     		this.y += this.vy*dt
+     	}
+     	bounceX(){
+     		if((this.vy<0 && this.y<=this.radius)  ||  (this.vy>0 && (this.playground.height - this.y)<=this.radius)){
+     		      this.vy = this.vy*(-1)
+     		}
+     	}
+     	bounceY(){
+     		if((this.vx<0 && this.x<=this.radius) || (this.vx>0 && (this.playground.width - this.x)<=this.radius)){
+     		      this.vx  = this.vx*(-1)
+     		}
+     	}
+     	toString(){
+     		return "{ x:"+this.x+",y:"+this.y+",r:"+this.r+",vx:"+this.vx+",vy:"+this.vy+"}"
+     	}
+     }
+     class ParticleGrp{
+     	constructor(playground={width:800,height:600}){
+     		this.playground = playground
+     		this.grp = this.generateParticleGrp()
+     	}
+     	generateParticle(){
+     	      return new Particle(Math.random()*this.playground.width,Math.random()*this.playground.height,10,10,10,'#0000ff',this.playground)	
+     	}
+     	generateParticleGrp(){
+     	       const arr = []
+                 for(let i=0;i<10;i++){
+                 	arr.push(this.generateParticle())
+                 }
+     	}
+     	draw(){
+     		
+     	}
+
+     }
+     const canvas = document.getElementById('canvas')
+     const ctx = canvas.getContext("2d")
+     const circle = new Circle(100,100,10)
+     drawTool = new DrawTool(canvas,ctx)
+     drawTool.init(800,600)
+     const p0 =  new  Point(20,20)
+     const  p1 = new Point(760,20)
+     const particle = new Particle(100,100,10,10,10,'#0000ff',{width:800,height:600})
+     drawTool.drawLine(p0,p1)
+     drawTool.drawCycle(circle)
+     setInterval(()=>{
+        drawTool.clear()
+        drawTool.drawCycle(particle)
+        particle.move(1)
+     },100)
+</script>
+</html>

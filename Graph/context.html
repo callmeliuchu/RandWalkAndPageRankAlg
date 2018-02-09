@@ -7,6 +7,14 @@
 <canvas id="canvas"></canvas>
 </body>
 <script type="text/javascript">
+     function getRandColor(){
+       var colorList = [
+       '#C1232B','#B5C334','#FCCE10','#E87C25','#27727B',
+       '#FE8463','#9BCA63','#FAD860','#F3A43B','#60C0DD',
+       '#D7504B','#C6E579','#F4E001','#F0805A','#26C0C0'
+       ];
+        return  colorList[Math.floor((Math.random()*colorList.length))];
+     }
     class Point{
     	constructor(x,y){
     		this.x = x
@@ -114,40 +122,55 @@
      	toString(){
      		return "{ x:"+this.x+",y:"+this.y+",r:"+this.r+",vx:"+this.vx+",vy:"+this.vy+"}"
      	}
+     	distanceToOtherParticle(that){
+     		return Math.sqrt((this.x-that.x)*(this.x-that.x) + (this.y-that.y)*(this.y-that.y))
+     	}
      }
      class ParticleGrp{
      	constructor(playground={width:800,height:600}){
      		this.playground = playground
      		this.grp = this.generateParticleGrp()
      	}
+     	setTool(drawTool){
+     		this.drawTool = drawTool
+     	}
      	generateParticle(){
-     	      return new Particle(Math.random()*this.playground.width,Math.random()*this.playground.height,10,10,10,'#0000ff',this.playground)	
+     	      return new Particle(Math.random()*this.playground.width,Math.random()*this.playground.height,Math.random()*10+5,Math.random()*10+5,Math.random()*10+5,getRandColor(),this.playground)	
      	}
      	generateParticleGrp(){
      	       const arr = []
-                 for(let i=0;i<10;i++){
+                 for(let i=0;i<100;i++){
                  	arr.push(this.generateParticle())
                  }
+                 return arr
      	}
      	draw(){
-     		
+     		for(let i=0;i<this.grp.length;i++){
+     			this.drawTool.drawCycle(this.grp[i],this.grp[i].color)
+     			for(let j=i+1;j<this.grp.length;j++){
+     				if(this.grp[i].distanceToOtherParticle(this.grp[j])<100){
+     					this.drawTool.drawLine(this.grp[i],this.grp[j])
+     				}
+     			}
+     		}
      	}
-
+     	move(dt){
+     		for(let p of this.grp){
+     			p.move(1)
+     		}
+          	}
      }
      const canvas = document.getElementById('canvas')
      const ctx = canvas.getContext("2d")
-     const circle = new Circle(100,100,10)
      drawTool = new DrawTool(canvas,ctx)
      drawTool.init(800,600)
-     const p0 =  new  Point(20,20)
-     const  p1 = new Point(760,20)
-     const particle = new Particle(100,100,10,10,10,'#0000ff',{width:800,height:600})
-     drawTool.drawLine(p0,p1)
-     drawTool.drawCycle(circle)
+     const particle = new Particle(100,100,10,10,10,getRandColor(),{width:800,height:600})
+     particleGrp = new ParticleGrp()
+     particleGrp.setTool(drawTool)
      setInterval(()=>{
         drawTool.clear()
-        drawTool.drawCycle(particle)
-        particle.move(1)
-     },100)
+        particleGrp.draw()
+        particleGrp.move(1)
+     },50)
 </script>
 </html>

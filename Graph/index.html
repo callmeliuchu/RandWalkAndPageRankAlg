@@ -244,6 +244,9 @@ class Graph{
            setGraph(graph){
                     this.graph = graph
            }
+           getNewLocation{
+            
+           }
     	moveOnGraph(dt){
     		if(this.cal_dis_to_end()>this.r*10){
                                    this.move(dt)
@@ -273,7 +276,6 @@ class Graph{
                         let x = new_loc.x + this.start.x
                         let y = new_loc.y + this.start.y
                         DrawTool.drawCycle(x,y,this.r,this.color)
-                        console.log(baseX,lineLen,baseY,alpha)
                         }else{
                              DrawTool.drawCycle(this.x,this.y,this.r,this.color)
                         }

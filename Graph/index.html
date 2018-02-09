@@ -189,7 +189,7 @@ class Graph{
     		this.vx = vx
     		this.vy = vy
     		this.r = r
-                     this.scala = 20
+                     this.scala = 100
                      this.count = 0
                      this.color = color
                      this.countGraphPoint = []
@@ -314,8 +314,8 @@ class Graph{
         }
         logCount(){
             let arr =  this.getCount()
-            let new_arr = this.dealWithArr_1(arr)
-            DrawTool.drawGraph(900,600,500,800,new_arr)
+            let new_arr = this.dealWithArr(arr)
+            DrawTool.drawGraph(800,600,500,2000,new_arr)
         }
         getCount(){
             var sum_arr = null
@@ -332,19 +332,23 @@ class Graph{
             return sum_arr
         }
         dealWithArr(arr){
-          let std = arr[0]
+          let new_arr = []
+          for(let i=0;i<arr.length;i++){
+            new_arr.push(arr[i])
+          }
+          let std = new_arr[0]
           if(std == 0){
             std = 1
           }
           let sum = 0
-          for(let i=0;i<arr.length;i++){
-              arr[i] = arr[i]/std;
-              sum += arr[i]
+          for(let i=0;i<new_arr.length;i++){
+              new_arr[i] = new_arr[i]/std;
+              sum += new_arr[i]
           }
-          for(let i=0;i<arr.length;i++){
-              arr[i] = arr[i]/sum;
+          for(let i=0;i<new_arr.length;i++){
+              new_arr[i] = new_arr[i]/sum;
           }
-          return arr;
+          return new_arr;
         }
         dealWithArr_1(arr){
           let max_val = -1
@@ -356,6 +360,16 @@ class Graph{
           let new_arr = []
           for(let i=0;i<arr.length;i++){
               new_arr.push(arr[i]/(max_val*2));
+          }
+          return new_arr;
+        }
+        dealWithArr_3(arr){
+          let new_arr = []
+          for(let i=0;i<arr.length;i++){
+            new_arr.push(arr[i])
+          }
+          for(let i=0;i<new_arr.length;i++){
+            new_arr[i] = new_arr[i]/200000;
           }
           return new_arr;
         }
@@ -450,7 +464,7 @@ class Graph{
        p_grp.draw()  
        p_grp.logCount()
        p_grp.moveOnGraph(1)
-    },10)
+    },100)
 }
 run()
 

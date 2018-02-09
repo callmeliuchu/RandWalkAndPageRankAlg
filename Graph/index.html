@@ -73,12 +73,12 @@ class Graph{
 <canvas id="canvas"></canvas>
 </body>
 <script type="text/javascript">
-     function getRandColor(){
-       var colorList = [
-       '#C1232B','#B5C334','#FCCE10','#E87C25','#27727B',
-       '#FE8463','#9BCA63','#FAD860','#F3A43B','#60C0DD',
+     var colorList = [
+       '#C1232B','#B5C334','#00CE10','#0000ff','#27727B',
+       '#FE8463','#9BCA63','#000000','#F3A43B','#60C0DD',
        '#D7504B','#C6E579','#F4E001','#F0805A','#26C0C0'
        ];
+     function getRandColor(){
         return  colorList[Math.floor((Math.random()*colorList.length))];
      }
     class Point{
@@ -97,7 +97,7 @@ class Graph{
     var DrawTool = {}
     DrawTool.canvas = document.getElementById("canvas");
     DrawTool.ctx = DrawTool.canvas.getContext("2d");
-    DrawTool.iniCanvas = function(width=180,height=160){
+    DrawTool.iniCanvas = function(width=1800,height=1600){
         this.width = width;
         this.height = height;
         this.canvas.width = width;
@@ -170,7 +170,20 @@ class Graph{
     DrawTool.stroke = function(){
          this.ctx.stroke();
     }
-
+    DrawTool.fillRect = function(x,y,width,height,color='#000000'){
+         this.ctx.fillStyle = color
+         this.ctx.fillRect(x,y,width,height)
+    }
+    DrawTool.drawGraph = function(x0,y0,width,height,arr){
+         let n  = arr.length
+         let  w = width/n
+         for(let i=0;i<n;i++){
+            let x_val = x0 + i*w
+            let h = arr[i]*height
+            let y_val = y0 - h
+            this.fillRect(x_val,y_val,w,h,colorList[i])
+         }
+    }
     class Particle{
     	constructor(vx=30,vy=0,r=5,color='#0000ff',n=12){
     		this.vx = vx
@@ -246,9 +259,6 @@ class Graph{
            setGraph(graph){
                     this.graph = graph
            }
-           getNewLocation{
-            
-           }
     	moveOnGraph(dt){
     		if(this.cal_dis_to_end()>this.r*10){
                                    this.move(dt)
@@ -303,7 +313,8 @@ class Graph{
             }
         }
         logCount(){
-            console.log(this.dealWithArr(this.getCountRatio()))
+            const arr =  this.dealWithArr(this.getCountRatio())
+            DrawTool.drawGraph(900,600,500,2000,arr)
         }
         getCountRatio(){
             var sum_arr = null
@@ -334,6 +345,12 @@ class Graph{
           }
           return arr;
         }
+        dealWithArr_1(arr){
+          for(let i=0;i<arr.length;i++){
+              arr[i] = arr[i]/1000;
+          }
+          return arr;
+        }
     }
 
     class PointGraph{
@@ -352,7 +369,7 @@ class Graph{
         }
         drawGraph(){
             for(let p of this.pointArr){
-                DrawTool.drawCycleByPoint(p,20,this.color)
+                DrawTool.drawCycleByPoint(p,20,colorList[p.index])
             }
             for(let line of this.pointGraph){
                 DrawTool.drawLine(line[0],line[1])
@@ -371,9 +388,12 @@ class Graph{
     }
 
     DrawTool.iniCanvas()
-    var  p0 = new Point(0,20,20)
-    var  p1 = new Point(1,760,20)
-    DrawTool.line(p0,p1)
+    // const arr = [0.08894230769233087, 0.12620192307695596, 0.18269230769222494, 0.10937499999989815, 0.05649038461539935, 0.0745192307692502, 0.05288461538462917, 0.13341346153849631, 0.01923076923077424, 0.08894230769233087, 0.05408653846155256, 0.013221153846157293]
+    // DrawTool.drawGraph(900,600,200,2000,arr)
+    // DrawTool.fillRect(0,0,100,100) 
+    // var  p0 = new Point(0,20,20)
+    // var  p1 = new Point(1,760,560)
+    // DrawTool.drawLine(p0,p1)
     // var  p0 = new Point(0,20,20)
     // var  p1 = new Point(1,760,20)
     // var  p3 = new Point(3,760,560)
@@ -408,7 +428,7 @@ class Graph{
         var locationMapping = pointGraph.getLocationMapping()
         var graph = pointGraph.getGrpah()
         var p_grp = new ParticleGrp()
-        for(let p_vec of [[p0,p1],[p1,p2],[p2,p3],[p3,p0]]){
+        for(let p_vec of   [[p5,p4],[p5,p6],[p5,p2]]){
            let particle = new Particle()
            particle.setLocationMapping(locationMapping)
            particle.setGraph(graph)
@@ -424,7 +444,7 @@ class Graph{
        p_grp.moveOnGraph(1)
     },1)
 }
-// run()
+run()
 
 
 </script>

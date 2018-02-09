@@ -97,11 +97,13 @@ class Graph{
     var DrawTool = {}
     DrawTool.canvas = document.getElementById("canvas");
     DrawTool.ctx = DrawTool.canvas.getContext("2d");
-    DrawTool.iniCanvas = function(width=1800,height=1600){
+    DrawTool.iniCanvas = function(width=180,height=160){
         this.width = width;
         this.height = height;
         this.canvas.width = width;
         this.canvas.height = height;
+        this.ctx.fillStyle = '#0000'
+        // this.ctx.fillRect(0,0,width,height)
     }
     DrawTool.line = function(p1,p2,width=1,color="#000000"){
          this.ctx.moveTo(p1.x,p1.y);
@@ -170,7 +172,7 @@ class Graph{
     }
 
     class Particle{
-    	constructor(vx=30,vy=0,r=5,color='#0000ff',n=8){
+    	constructor(vx=30,vy=0,r=5,color='#0000ff',n=12){
     		this.vx = vx
     		this.vy = vy
     		this.r = r
@@ -178,7 +180,7 @@ class Graph{
                      this.count = 0
                      this.color = color
                      this.countGraphPoint = []
-                     this.intiCountGraphPoint()
+                     this.intiCountGraphPoint(n)
                      this.isLineMove = false
                      this.curve_v = 30
     	}
@@ -201,13 +203,13 @@ class Graph{
           }
     	setStartIndex(startIndex){
     		this.startIndex = startIndex
-                     this.countGraphPoint[startIndex]++
+        this.countGraphPoint[startIndex]++
     		this.setStart(this.locationMapping[startIndex])
     	}
     	comeToEndIndex(endIndex){
     		this.endIndex = endIndex
-                     this.count ++
-                     this.countGraphPoint[endIndex]++
+        this.count ++
+        this.countGraphPoint[endIndex]++
     		this.comeToEnd(this.locationMapping[endIndex])
     	}
           cal_ratio(){
@@ -301,9 +303,8 @@ class Graph{
             }
         }
         logCount(){
-            console.log(this.getCountRatio())
+            console.log(this.dealWithArr(this.getCountRatio()))
         }
-
         getCountRatio(){
             var sum_arr = null
             for(let i=0;i<this.particle_arr.length;i++){
@@ -317,6 +318,21 @@ class Graph{
                 }
             }
             return sum_arr
+        }
+        dealWithArr(arr){
+          let std = arr[0]
+          if(std == 0){
+            std = 1
+          }
+          let sum = 0
+          for(let i=0;i<arr.length;i++){
+              arr[i] = arr[i]/std;
+              sum += arr[i]
+          }
+          for(let i=0;i<arr.length;i++){
+              arr[i] = arr[i]/sum;
+          }
+          return arr;
         }
     }
 
@@ -355,6 +371,9 @@ class Graph{
     }
 
     DrawTool.iniCanvas()
+    var  p0 = new Point(0,20,20)
+    var  p1 = new Point(1,760,20)
+    DrawTool.line(p0,p1)
     // var  p0 = new Point(0,20,20)
     // var  p1 = new Point(1,760,20)
     // var  p3 = new Point(3,760,560)
@@ -389,7 +408,7 @@ class Graph{
         var locationMapping = pointGraph.getLocationMapping()
         var graph = pointGraph.getGrpah()
         var p_grp = new ParticleGrp()
-        for(let p_vec of p_graph){
+        for(let p_vec of [[p0,p1],[p1,p2],[p2,p3],[p3,p0]]){
            let particle = new Particle()
            particle.setLocationMapping(locationMapping)
            particle.setGraph(graph)
@@ -401,10 +420,12 @@ class Graph{
        DrawTool.clear()
        pointGraph.drawGraph()
        p_grp.draw()  
+       p_grp.logCount()
        p_grp.moveOnGraph(1)
-    },10)
+    },1)
 }
-run()
+// run()
+
 
 </script>
 </html>

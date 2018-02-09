@@ -313,10 +313,11 @@ class Graph{
             }
         }
         logCount(){
-            const arr =  this.dealWithArr(this.getCountRatio())
-            DrawTool.drawGraph(900,600,500,2000,arr)
+            let arr =  this.getCount()
+            let new_arr = this.dealWithArr_1(arr)
+            DrawTool.drawGraph(900,600,500,800,new_arr)
         }
-        getCountRatio(){
+        getCount(){
             var sum_arr = null
             for(let i=0;i<this.particle_arr.length;i++){
                 let p = this.particle_arr[i]
@@ -346,10 +347,17 @@ class Graph{
           return arr;
         }
         dealWithArr_1(arr){
+          let max_val = -1
           for(let i=0;i<arr.length;i++){
-              arr[i] = arr[i]/1000;
+            if(max_val < arr[i]){
+                max_val = arr[i]
+            }
           }
-          return arr;
+          let new_arr = []
+          for(let i=0;i<arr.length;i++){
+              new_arr.push(arr[i]/(max_val*2));
+          }
+          return new_arr;
         }
     }
 
@@ -428,7 +436,7 @@ class Graph{
         var locationMapping = pointGraph.getLocationMapping()
         var graph = pointGraph.getGrpah()
         var p_grp = new ParticleGrp()
-        for(let p_vec of   [[p5,p4],[p5,p6],[p5,p2]]){
+        for(let p_vec of   p_graph){
            let particle = new Particle()
            particle.setLocationMapping(locationMapping)
            particle.setGraph(graph)
@@ -442,7 +450,7 @@ class Graph{
        p_grp.draw()  
        p_grp.logCount()
        p_grp.moveOnGraph(1)
-    },1)
+    },10)
 }
 run()
 
